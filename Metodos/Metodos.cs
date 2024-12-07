@@ -7,10 +7,37 @@ namespace VistoriaZN.Metodos
         static readonly string caminhoArquivoFornecedor = @"D:\base_de_dados_Fornecedor.csv";
         static readonly string caminhoArquivoVistoria = @"D:\base_de_dados_Vistoria.csv";
 
+        public static bool ToBool(this string value)
+        {
+            if (bool.TryParse(value, out bool result))
+            {
+                return result;
+            }
+            if (value == "1" || value.Equals("sim", StringComparison.OrdinalIgnoreCase) || value.Equals("yes", StringComparison.OrdinalIgnoreCase) || value.Equals("True", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (value == "0" || value.Equals("não", StringComparison.OrdinalIgnoreCase) || value.Equals("no", StringComparison.OrdinalIgnoreCase) || value.Equals("False", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public static int ToInt(this string value)
+        {
+            if (int.TryParse(value, out int result))
+            {
+                return result;
+            }
+            return 0;
+        }
+
         public static void criarArmazenamento()
         {
             string[] iniciarFornecedor = {
-                "Id;Nome;Telefone",
+                "Id;Nome;Telefone,Ativo",
             };
             string[] iniciarVistoria = {
                 "Id;Nome;FornecedorId;Valor;Placa;Modelo"
@@ -32,6 +59,7 @@ namespace VistoriaZN.Metodos
             }
         }
 
+        #region Parceiro
         public static Fornecedor GetFornecedor(int Id)
         {
             try
@@ -49,7 +77,8 @@ namespace VistoriaZN.Metodos
                         {
                             Id = int.Parse(colunas[0]),
                             Nome = colunas[1],
-                            Telefone = colunas[3]
+                            Telefone = colunas[2],
+                            Ativo = colunas[3].ToBool()
                         };
                     }
                 }
@@ -73,7 +102,7 @@ namespace VistoriaZN.Metodos
             }
         }
 
-        public static List<Fornecedor> GetListFornecedor()
+        public static List<Fornecedor> GetListFornecedor(bool ativos)
         {
             try
             {
@@ -86,9 +115,10 @@ namespace VistoriaZN.Metodos
                     string linha = linhas[i];
                     string[] colunas = linha.Split(';');
 
-                    Fornecedor fornecedor = new Fornecedor(int.Parse(colunas[0]), colunas[1], colunas[3]);
-
-                    fornecedores.Add(fornecedor);
+                    if (colunas[3].ToBool() == ativos)
+                    {
+                        fornecedores.Add(new Fornecedor(colunas[0].ToInt(), colunas[1], colunas[2], colunas[3].ToBool()));
+                    }
                 }
                 return fornecedores;
             }
@@ -103,7 +133,71 @@ namespace VistoriaZN.Metodos
                 return new List<Fornecedor>();
             }
         }
-        
+
+        public static void AdicionarParceiro(Fornecedor parceiro)
+        {
+            parceiro.Id = ObterProximoID(caminhoArquivoFornecedor);
+            using (StreamWriter sw = new StreamWriter(caminhoArquivoFornecedor, append: true))
+            {
+                string linha = $"{parceiro.Id};{parceiro.Nome};{parceiro.Telefone};{parceiro.Ativo}";
+                sw.WriteLine(linha);
+            }
+        }
+
+        public static void AtualizarParceiro(Fornecedor parceiro)
+        {
+            try
+            {
+                string[] linhas = File.ReadAllLines(caminhoArquivoFornecedor);
+                bool encontrou = false;
+
+                for (int i = 1; i < linhas.Length; i++)
+                {
+                    string linha = linhas[i];
+                    string[] colunas = linha.Split(';');
+
+                    if (int.Parse(colunas[0]) == parceiro.Id)
+                    {
+                        linhas[i] = $"{parceiro.Id};{parceiro.Nome};{parceiro.Telefone};{parceiro.Ativo}";
+                        encontrou = true;
+                        break;
+                    }
+                }
+
+                if (encontrou)
+                {
+                    File.WriteAllLines(caminhoArquivoFornecedor, linhas);
+
+                    MessageBox.Show(
+                        $"Registro atualizado com sucesso!",
+                        "Sucesso",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+                }
+                else
+                {
+                    MessageBox.Show(
+                        $"Registro não encontrado.",
+                        "Erro",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Erro ao atualizar registro: {ex.Message}",
+                    "Erro",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
+        }
+        #endregion
+
+        #region Vistoria
         public static Vistoria GetVistoria(int Id)
         {
             try
@@ -257,6 +351,38 @@ namespace VistoriaZN.Metodos
         public static List<Vistoria> GetListVistoriaMesFornecedor(int fornecedorId)
         {
             return GetListVistoriaMes().Where(o=> o.FornecedorId.HasValue && o.FornecedorId == fornecedorId).ToList();
+        }
+
+        public static void AdicionarVistoria(Vistoria vistoria)
+        {
+            vistoria.Id = ObterProximoID(caminhoArquivoVistoria);
+            using (StreamWriter sw = new StreamWriter(caminhoArquivoFornecedor, append: true))
+            {
+                string linha = $"{vistoria.Id};{vistoria.Nome};{vistoria.Fornecedor};{vistoria.FornecedorId};{vistoria.Valor};{vistoria.Placa};{vistoria.Modelo};{vistoria.DtRealizado};{vistoria.DtPago}";
+                sw.WriteLine(linha);
+            }
+        }
+        #endregion
+
+        private static int ObterProximoID(string caminho)
+        {
+            if (!File.Exists(caminho) || new FileInfo(caminho).Length == 0)
+            {
+                return 1;
+            }
+            var linhas = File.ReadAllLines(caminho);
+            var ultimaLinha = linhas.LastOrDefault(l => !string.IsNullOrWhiteSpace(l));
+
+            if (ultimaLinha == null)
+            {
+                return 1;
+            }
+            var campos = ultimaLinha.Split(';');
+            if (int.TryParse(campos[0], out int ultimoID))
+            {
+                return ultimoID + 1;
+            }
+            return 1;
         }
     }
 }

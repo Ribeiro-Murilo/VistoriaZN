@@ -30,6 +30,7 @@ namespace VistoriaZN
         private void InitializeComponent()
         {
             Nav = new Panel();
+            date = new Label();
             Parceiro = new Panel();
             label3 = new Label();
             Servico = new Panel();
@@ -37,10 +38,12 @@ namespace VistoriaZN
             Inicio = new Panel();
             label1 = new Label();
             BoxInfo = new Panel();
+            label4 = new Label();
             Nav.SuspendLayout();
             Parceiro.SuspendLayout();
             Servico.SuspendLayout();
             Inicio.SuspendLayout();
+            BoxInfo.SuspendLayout();
             SuspendLayout();
             // 
             // Nav
@@ -49,12 +52,22 @@ namespace VistoriaZN
             Nav.Controls.Add(Parceiro);
             Nav.Controls.Add(Servico);
             Nav.Controls.Add(Inicio);
+            Nav.Controls.Add(date);
             Nav.Location = new Point(12, 12);
             Nav.Margin = new Padding(5);
             Nav.Name = "Nav";
             Nav.Size = new Size(1658, 124);
             Nav.TabIndex = 0;
             Nav.Paint += Nav_Paint;
+            // 
+            // date
+            // 
+            date.AutoSize = true;
+            date.Location = new Point(1535, 43);
+            date.Name = "date";
+            date.Size = new Size(50, 20);
+            date.TabIndex = 4;
+            date.Text = "label6";
             // 
             // Parceiro
             // 
@@ -76,6 +89,7 @@ namespace VistoriaZN
             label3.Size = new Size(132, 20);
             label3.TabIndex = 1;
             label3.Text = "Adicionar parceiro";
+            label3.Click += label3_Click;
             // 
             // Servico
             // 
@@ -97,6 +111,7 @@ namespace VistoriaZN
             label2.Size = new Size(123, 20);
             label2.TabIndex = 2;
             label2.Text = "Adicionar serviço";
+            label2.Click += label2_Click;
             // 
             // Inicio
             // 
@@ -118,14 +133,26 @@ namespace VistoriaZN
             label1.Size = new Size(45, 20);
             label1.TabIndex = 1;
             label1.Text = "Inicio";
+            label1.Click += label1_Click;
             // 
             // BoxInfo
             // 
+            BoxInfo.Controls.Add(label4);
             BoxInfo.Location = new Point(12, 132);
             BoxInfo.Name = "BoxInfo";
             BoxInfo.Size = new Size(1658, 1196);
             BoxInfo.TabIndex = 1;
             BoxInfo.Paint += BoxInfo_Paint;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(43, 63);
+            label4.Name = "label4";
+            label4.Size = new Size(135, 20);
+            label4.TabIndex = 0;
+            label4.Text = "Bem vindo Wagner";
+            label4.Click += label4_Click;
             // 
             // Dash
             // 
@@ -139,12 +166,15 @@ namespace VistoriaZN
             Text = "Form1";
             Load += Dash_Load;
             Nav.ResumeLayout(false);
+            Nav.PerformLayout();
             Parceiro.ResumeLayout(false);
             Parceiro.PerformLayout();
             Servico.ResumeLayout(false);
             Servico.PerformLayout();
             Inicio.ResumeLayout(false);
             Inicio.PerformLayout();
+            BoxInfo.ResumeLayout(false);
+            BoxInfo.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -159,5 +189,7 @@ namespace VistoriaZN
         private Label label3;
         private Label label2;
         private Panel BoxInfo;
+        private Label label4;
+        private Label date;
     }
 }

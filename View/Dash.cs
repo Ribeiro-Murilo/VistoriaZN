@@ -1,26 +1,45 @@
 using System.Drawing.Drawing2D;
-using System.IO;
-using System.Windows.Forms;
 using VistoriaZN.View;
+
 
 namespace VistoriaZN
 {
     public partial class Dash : Form
     {
         public Panel Selecionado { get; set; }
+        private System.Threading.Timer timer;
 
 
         public Dash()
         {
             InitializeComponent();
-            IniciarNav();
+            IniciarNavAsync();
+
+            IniciarRelogioAsync();
+
         }
 
-        private void IniciarNav()
+        private void IniciarNavAsync()
         {
             Metodos.Metodos.criarArmazenamento();
+            label4.Font = new Font(label4.Font.FontFamily, 16);
+        }
+        private async Task IniciarRelogioAsync()
+        {
+            while (true)
+            {
+                date.Font = new Font(date.Font.FontFamily, 16);
+                alterarData();
+                await Task.Delay(60000);
+            }
         }
 
+        private void alterarData()
+        {
+            DateTime data = DateTime.Now;
+            date.Text = DateTime.Now.ToString("HH:mm");
+
+        }
         private void Nav_Paint(object sender, PaintEventArgs e)
         {
             PanelForma(sender, e, new List<short> { 25, 117, 209 });
@@ -92,7 +111,6 @@ namespace VistoriaZN
                 }
             }
 
-
             formToOpen.TopLevel = false;
             formToOpen.FormBorderStyle = FormBorderStyle.None;
             formToOpen.Dock = DockStyle.Fill;
@@ -134,6 +152,23 @@ namespace VistoriaZN
         private void Dash_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
         }
     }
 }
